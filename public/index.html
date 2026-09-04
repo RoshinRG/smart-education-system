@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Smart Education - AI-powered learning platform">
+  <title>Smart Education</title>
+  <link rel="stylesheet" href="../src/styles/global.css">
+  <link rel="stylesheet" href="../src/styles/tutor.css">
+  <link rel="stylesheet" href="../src/styles/flashcards.css">
+  <style>
+    /* Auth pages */
+    .auth-page {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    }
+
+    .auth-container {
+      width: 100%;
+      max-width: 400px;
+      background-color: white;
+      padding: var(--spacing-2xl);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: var(--spacing-2xl);
+    }
+
+    .auth-header h1 {
+      margin-bottom: var(--spacing-md);
+    }
+
+    .form-group {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: var(--spacing-sm);
+      font-weight: var(--font-weight-medium);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-lg);
+    }
+
+    .auth-footer {
+      text-align: center;
+      margin-top: var(--spacing-lg);
+      font-size: var(--font-size-sm);
+    }
+
+    /* Dashboard */
+    .student-dashboard {
+      padding: var(--spacing-2xl);
+    }
+
+    .dashboard-header {
+      margin-bottom: var(--spacing-2xl);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-2xl);
+    }
+
+    .stat-value {
+      font-size: var(--font-size-3xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--primary);
+    }
+
+    .dashboard-sections {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--spacing-lg);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: var(--spacing-md);
+      flex-wrap: wrap;
+    }
+
+    /* Quiz */
+    .quiz-page {
+      padding: var(--spacing-2xl);
+    }
+
+    .quiz-window {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .quiz-header {
+      display: flex;
+      gap: var(--spacing-xl);
+      margin-bottom: var(--spacing-2xl);
+    }
+
+    .score-badge,
+    .difficulty-badge {
+      flex: 1;
+      padding: var(--spacing-lg);
+      background-color: white;
+      border-radius: var(--radius-lg);
+      text-align: center;
+      box-shadow: var(--shadow-md);
+    }
+
+    .quiz-content {
+      background-color: white;
+      padding: var(--spacing-2xl);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--spacing-lg);
+      box-shadow: var(--shadow-md);
+    }
+
+    .quiz-content h3 {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+
+    .option {
+      padding: var(--spacing-md);
+      border: 2px solid var(--neutral-200);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-base);
+    }
+
+    .option:hover {
+      border-color: var(--primary);
+      background-color: rgba(99, 102, 241, 0.05);
+    }
+
+    .option input[type="radio"] {
+      width: auto;
+      margin-right: var(--spacing-md);
+    }
+
+    .answer-input {
+      min-height: 150px;
+      padding: var(--spacing-md);
+      margin: 0;
+    }
+
+    .quiz-actions {
+      text-align: center;
+    }
+
+    /* Study Plan */
+    .study-plan-page {
+      padding: var(--spacing-2xl);
+    }
+
+    .plan-progress {
+      margin-top: var(--spacing-lg);
+    }
+
+    .plan-timeline {
+      margin: var(--spacing-2xl) 0;
+    }
+
+    .timeline {
+      position: relative;
+      padding: var(--spacing-2xl) 0;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-left: var(--spacing-3xl);
+      padding-bottom: var(--spacing-2xl);
+    }
+
+    .timeline-marker {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+    .marker-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: var(--primary-light);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: var(--font-weight-bold);
+    }
+
+    .timeline-item.current .marker-circle {
+      background-color: var(--success);
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+    }
+
+    .timeline-item.completed .marker-circle {
+      background-color: var(--success);
+    }
+
+    .timeline-content {
+      background-color: white;
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .topics {
+      margin-top: var(--spacing-md);
+    }
+
+    .topics ul {
+      margin: var(--spacing-sm) 0 0 var(--spacing-lg);
+    }
+
+    .topics li {
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .completed-badge {
+      display: inline-block;
+      background-color: var(--success);
+      color: white;
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-sm);
+      margin-top: var(--spacing-md);
+    }
+
+    .plan-generator {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: white;
+      padding: var(--spacing-2xl);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .plan-actions {
+      text-align: center;
+      margin-top: var(--spacing-2xl);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .quiz-header {
+        flex-direction: column;
+      }
+
+      .quiz-content {
+        padding: var(--spacing-lg);
+      }
+
+      .response-buttons {
+        flex-direction: column;
+      }
+
+      .response-buttons .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script type="module">
+    // Initialize app
+    import { render } from '../src/router.js';
+    render();
+  </script>
+</body>
+</html>
