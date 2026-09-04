@@ -305,18 +305,25 @@ When developing without a backend server running on `http://localhost:5000`, the
 We welcome contributions to make the Smart Education platform even better!
 
 1. Fork the Project repository
+
 2. Create your Feature Branch:
+
    ```bash
    git checkout -b feature/NewFeature
    ```
+
 3. Commit your Changes:
+
    ```bash
    git commit -m "feat: add interactive code execution for Python"
    ```
+
 4. Push to the Branch:
+
    ```bash
    git push origin feature/NewFeature
    ```
+
 5. Open a Pull Request
 
 ---
