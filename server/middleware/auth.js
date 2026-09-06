@@ -6,7 +6,10 @@
 const jwt = require('jsonwebtoken');
 const pool = require('../db/connection');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'smart_education_jwt_secret_key_2024';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error('FATAL: JWT_SECRET environment variable is not set. Server will not start.');
+}
 
 /**
  * Middleware: require valid JWT

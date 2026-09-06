@@ -212,6 +212,14 @@ router.post('/note/create', authenticate, async (req, res) => {
 // ──── Delete Note ─────────────────────────────────────────────
 router.delete('/note/:id', authenticate, async (req, res) => {
   try {
+    // Fix 3: Verify ownership before deleting
+    const [rows] = await pool.query(
+      'SELECT id FROM teacher_notes WHERE id = ? AND author_id = ?',
+      [req.params.id, req.user.id]
+    );
+    if (rows.length === 0) {
+      return res.status(403).json({ error: 'Forbidden: you do not own this note.' });
+    }
     await pool.query('DELETE FROM teacher_notes WHERE id = ?', [req.params.id]);
     res.json({ success: true });
   } catch (err) {

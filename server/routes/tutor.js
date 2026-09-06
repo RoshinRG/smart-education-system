@@ -253,6 +253,15 @@ router.get('/chat/:id', async (req, res) => {
 // ──── Delete Chat ─────────────────────────────────────────────
 router.delete('/chat/:id', authenticate, async (req, res) => {
   try {
+    // Fix 6: Verify ownership before deleting
+    const userId = req.user ? req.user.id : 'anonymous';
+    const [rows] = await pool.query(
+      'SELECT id FROM tutor_chats WHERE id = ? AND user_id = ?',
+      [req.params.id, userId]
+    );
+    if (rows.length === 0) {
+      return res.status(403).json({ error: 'Forbidden: you do not own this chat.' });
+    }
     await pool.query('DELETE FROM tutor_chats WHERE id = ?', [req.params.id]);
     res.json({ success: true });
   } catch (err) {

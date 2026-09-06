@@ -105,6 +105,14 @@ router.post('/deck', authenticate, async (req, res) => {
 // ──── Delete Deck ─────────────────────────────────────────────
 router.delete('/deck/:id', authenticate, async (req, res) => {
   try {
+    // Fix 4: Verify ownership before deleting
+    const [rows] = await pool.query(
+      'SELECT id FROM flashcard_decks WHERE id = ? AND created_by = ?',
+      [req.params.id, req.user.id]
+    );
+    if (rows.length === 0) {
+      return res.status(403).json({ error: 'Forbidden: you do not own this deck.' });
+    }
     await pool.query('DELETE FROM flashcard_decks WHERE id = ?', [req.params.id]);
     res.json({ success: true });
   } catch (err) {
@@ -134,6 +142,16 @@ router.post('/card', authenticate, async (req, res) => {
 // ──── Delete Card ─────────────────────────────────────────────
 router.delete('/card/:id', authenticate, async (req, res) => {
   try {
+    // Fix 5: Verify the requesting user owns the parent deck of this card
+    const [rows] = await pool.query(
+      `SELECT fc.id FROM flashcard_cards fc
+       JOIN flashcard_decks fd ON fd.id = fc.deck_id
+       WHERE fc.id = ? AND fd.created_by = ?`,
+      [req.params.id, req.user.id]
+    );
+    if (rows.length === 0) {
+      return res.status(403).json({ error: 'Forbidden: you do not own this card.' });
+    }
     await pool.query('DELETE FROM flashcard_cards WHERE id = ?', [req.params.id]);
     res.json({ success: true });
   } catch (err) {

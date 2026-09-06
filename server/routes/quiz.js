@@ -68,10 +68,28 @@ router.post('/start', optionalAuth, async (req, res) => {
         options: typeof q.options === 'string' ? JSON.parse(q.options) : q.options,
       }));
     } else {
+      // Fix 8: Require a non-empty topic so LIKE '%%' doesn't scan the whole table
+      if (!topic || !topic.trim()) {
+        return res.json({
+          attemptId: `att-${Date.now()}`,
+          quizId: 'dynamic',
+          title: 'Practice Quiz',
+          questions: [
+            {
+              id: 'q1',
+              question: 'What is the time complexity of searching in a Balanced Binary Search Tree?',
+              options: ['O(1)', 'O(n)', 'O(log n)', 'O(n log n)'],
+              correctAnswer: 2,
+              explanation: 'A balanced BST has height log n, ensuring logarithmic search performance.',
+            },
+          ],
+        });
+      }
+
       // Find a quiz by topic/subject
       const [quizRows] = await pool.query(
         'SELECT * FROM quizzes WHERE subject LIKE ? OR title LIKE ? LIMIT 1',
-        [`%${topic || ''}%`, `%${topic || ''}%`]
+        [`%${topic}%`, `%${topic}%`]
       );
 
       if (quizRows.length === 0) {
@@ -79,7 +97,7 @@ router.post('/start', optionalAuth, async (req, res) => {
         return res.json({
           attemptId: `att-${Date.now()}`,
           quizId: 'dynamic',
-          title: `${topic || 'Practice'} Quiz`,
+          title: `${topic} Quiz`,
           questions: [
             {
               id: 'q1',
@@ -161,8 +179,18 @@ router.post('/answer', async (req, res) => {
       return res.json({ success: true, isCorrect: false, explanation: 'Question not found.' });
     }
 
+    // Fix 2: Guard against duplicate submissions for the same question in this attempt
+    const [existing] = await pool.query(
+      'SELECT id FROM quiz_answers WHERE attempt_id = ? AND question_id = ? LIMIT 1',
+      [attemptId, questionId]
+    );
+    if (existing.length > 0) {
+      return res.status(409).json({ error: 'Answer already submitted for this question.' });
+    }
+
     const question = questions[0];
-    const isCorrect = answer === question.correct_answer;
+    // Fix 1: Cast both sides to Number so "2" === 2 evaluates correctly
+    const isCorrect = Number(answer) === Number(question.correct_answer);
 
     // Record the answer
     await pool.query(
