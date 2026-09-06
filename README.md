@@ -361,20 +361,20 @@ OPENAI_MODEL=gpt-4o-mini
 
 ### Connecting with MySQL Workbench 🐬
 
-You can easily inspect, query, and manage the database using [MySQL Workbench](https://www.mysql.com/products/workbench/):
+You can inspect, query, and manage the database using [MySQL Workbench](https://www.mysql.com/products/workbench/):
 
 1. Open **MySQL Workbench** and click the **`+`** icon next to **MySQL Connections**.
-2. Fill in the connection settings:
-   - **Connection Name**: `Smart Education`
+2. Fill in the connection settings matching your private `.env` configuration:
+   - **Connection Name**: `Smart Education (Local)`
    - **Connection Method**: `Standard (TCP/IP)`
-   - **Hostname**: `127.0.0.1`
-   - **Port**: `3306`
-   - **Username**: `root`
-   - **Password**: Click **Store in Vault ...** and enter your MySQL root password (e.g. `2206`)
-   - **Default Schema**: `smart_education`
+   - **Hostname**: Your database host (`DB_HOST` in `.env`, e.g., `localhost`)
+   - **Port**: Your database port (`DB_PORT` in `.env`, e.g., `3306`)
+   - **Username**: Your database username (`DB_USER` in `.env`)
+   - **Password**: Click **Store in Vault ...** and enter your private database password (`DB_PASSWORD` in `.env`)
+   - **Default Schema**: Your database name (`DB_NAME` in `.env`, default: `smart_education`)
 3. Click **Test Connection** to confirm connectivity, then click **OK**.
 4. Double-click the connection tile to open the SQL editor.
-5. In the left sidebar under `smart_education`:
+5. In the left sidebar under your database schema:
    - **Tables**: Browse all 15 relational tables (`users`, `classes`, `quizzes`, `flashcards`, etc.)
    - **Views**: Inspect analytical views (`v_student_performance`, `v_class_summary`, `v_quiz_overview`, `v_deck_summary`)
 
