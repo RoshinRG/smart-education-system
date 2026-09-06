@@ -1983,3 +1983,88 @@ select option { background: #1a1f2e; }
   .code-editor-panel { flex: none; height: 50vh; }
   .code-page-controls { justify-content: flex-start; }
 }
+
+/* ── Category tabs in Code IDE ───────────────────────────── */
+.code-cat-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 16px;
+  background: rgba(10, 12, 16, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+.code-cat-bar::-webkit-scrollbar { height: 3px; }
+.code-cat-bar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 2px; }
+
+.code-cat-pill {
+  padding: 3px 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+  color: #94a3b8;
+  font-size: 0.72rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.code-cat-pill:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f1f5f9;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.code-cat-pill.active {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(139, 92, 246, 0.25));
+  border-color: #6366f1;
+  color: #fff;
+  font-weight: 600;
+}
+
+.code-cat-badge {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1px 5px;
+  border-radius: 8px;
+  font-size: 0.65rem;
+  color: #94a3b8;
+}
+.code-cat-pill.active .code-cat-badge {
+  background: rgba(99, 102, 241, 0.4);
+  color: #c7d2fe;
+}
+
+/* ── Console / Preview Tabs ─────────────────────────────── */
+.code-view-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 2px;
+  border-radius: 6px;
+}
+.code-view-tab {
+  padding: 2px 8px;
+  font-size: 0.72rem;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.code-view-tab.active {
+  background: #6366f1;
+  color: white;
+  font-weight: 600;
+}
+
+.code-preview-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: white;
+  border-radius: 4px;
+}
