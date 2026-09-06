@@ -9,12 +9,14 @@ const STUDENT_LINKS = [
   { to: '/flashcards', label: '🃏 Flashcards' },
   { to: '/tutor', label: '🤖 AI Tutor' },
   { to: '/study-plan', label: '📅 Study Plan' },
+  { to: '/code', label: '⌨️ Code IDE' },
 ];
 
 const TEACHER_LINKS = [
   { to: '/teacher', label: '📊 Teacher Hub' },
   { to: '/quiz', label: '📝 View Quizzes' },
   { to: '/flashcards', label: '🃏 Flashcards Studio' },
+  { to: '/code', label: '⌨️ Code IDE' },
   { to: '/profile', label: '👤 Profile' },
 ];
 

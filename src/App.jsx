@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 import { appStore } from './state/store.js';
 import { authService } from './services/authService.js';
@@ -13,6 +13,7 @@ import QuizPage from './pages/QuizPage.jsx';
 import StudyPlanPage from './pages/StudyPlanPage.jsx';
 import TeacherDashboard from './pages/TeacherDashboard.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
+import CodePage from './pages/CodePage.jsx';
 
 // Protected route wrapper
 function ProtectedRoute({ children }) {
@@ -45,8 +46,23 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <AppShell isAuthenticated={isAuthenticated} />
+    </BrowserRouter>
+  );
+}
+
+function AppShell({ isAuthenticated }) {
+  const location = useLocation();
+  const isCodePage = location.pathname === '/code';
+
+  return (
+    <>
       {isAuthenticated && <Navbar />}
-      <main className={isAuthenticated ? 'main-content' : 'main-content-full'}>
+      <main className={
+        !isAuthenticated ? 'main-content-full'
+        : isCodePage ? 'main-content-code'
+        : 'main-content'
+      }>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
 
@@ -106,11 +122,19 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/code"
+            element={
+              <ProtectedRoute>
+                <CodePage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to={isAuthenticated ? '/' : '/login'} replace />} />
         </Routes>
       </main>
-    </BrowserRouter>
+    </>
   );
 }
