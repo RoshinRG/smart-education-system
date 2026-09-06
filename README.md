@@ -295,8 +295,8 @@ smart-education-starter/
 1. Clone the repository to your local machine:
 
    ```bash
-   git clone https://github.com/roshinrg/smart-education-starter.git
-   cd smart-education-starter
+   git clone https://github.com/RoshinRG/smart-education-system.git
+   cd smart-education-system
    ```
 
 2. Install frontend dependencies:
