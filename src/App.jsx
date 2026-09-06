@@ -21,6 +21,15 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+// Teacher-only protected route
+function TeacherRoute({ children }) {
+  const isAuthenticated = appStore.getState('isAuthenticated');
+  const user = appStore.getState('user');
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (user?.role !== 'teacher') return <Navigate to="/" replace />;
+  return children;
+}
+
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(
     appStore.getState('isAuthenticated')
@@ -60,9 +69,9 @@ export default function App() {
           <Route
             path="/teacher"
             element={
-              <ProtectedRoute>
+              <TeacherRoute>
                 <TeacherDashboard />
-              </ProtectedRoute>
+              </TeacherRoute>
             }
           />
           <Route

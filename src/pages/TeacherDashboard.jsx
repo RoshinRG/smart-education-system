@@ -6,13 +6,14 @@ import NoteEditor from '../components/teacher/NoteEditor.jsx';
 import QuizBuilder from '../components/teacher/QuizBuilder.jsx';
 import FlashcardDeckBuilder from '../components/teacher/FlashcardDeckBuilder.jsx';
 import { teacherService } from '../services/teacherService.js';
+import { apiClient } from '../services/api.js';
 
 export default function TeacherDashboard() {
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'notes' | 'quizzes' | 'flashcards' | 'lesson-plans'
   
   // Data states
   const [classes, setClasses] = useState([]);
-  const [selectedClassId, setSelectedClassId] = useState('c1');
+  const [selectedClassId, setSelectedClassId] = useState('');
   const [students, setStudents] = useState([]);
   const [analytics, setAnalytics] = useState(null);
   const [notes, setNotes] = useState([]);
@@ -23,6 +24,11 @@ export default function TeacherDashboard() {
   const [showNoteEditor, setShowNoteEditor] = useState(false);
   const [showQuizBuilder, setShowQuizBuilder] = useState(false);
   const [showDeckBuilder, setShowDeckBuilder] = useState(false);
+  const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
+  const [annTitle, setAnnTitle] = useState('');
+  const [annMessage, setAnnMessage] = useState('');
+  const [annPriority, setAnnPriority] = useState('important');
+  const [isPublishingAnn, setIsPublishingAnn] = useState(false);
   const [notification, setNotification] = useState(null);
 
   // AI Lesson Plan Generator state
@@ -47,11 +53,18 @@ export default function TeacherDashboard() {
       const classList = await teacherService.getClasses();
       setClasses(classList);
 
-      const studentList = await teacherService.getStudents(selectedClassId);
-      setStudents(studentList);
+      const activeId = selectedClassId || (classList.length > 0 ? classList[0].id : '');
+      if (!selectedClassId && classList.length > 0) {
+        setSelectedClassId(classList[0].id);
+      }
 
-      const analyticsData = await teacherService.getClassAnalytics(selectedClassId);
-      setAnalytics(analyticsData);
+      if (activeId) {
+        const studentList = await teacherService.getStudents(activeId);
+        setStudents(studentList);
+
+        const analyticsData = await teacherService.getClassAnalytics(activeId);
+        setAnalytics(analyticsData);
+      }
 
       const notesList = await teacherService.getNotes();
       setNotes(notesList);
@@ -118,6 +131,32 @@ export default function TeacherDashboard() {
       setGeneratingLp(false);
     }
   };
+
+  const handlePublishAnnouncement = async (e) => {
+    e.preventDefault();
+    if (!annTitle.trim() || !annMessage.trim()) return;
+
+    setIsPublishingAnn(true);
+    try {
+      await apiClient.post('/teacher/announcements', {
+        classId: selectedClassId || null,
+        title: annTitle.trim(),
+        message: annMessage.trim(),
+        priority: annPriority,
+      });
+
+      setShowAnnouncementModal(false);
+      setAnnTitle('');
+      setAnnMessage('');
+      showToast('📢 Announcement broadcasted to students via MySQL!');
+    } catch (err) {
+      showToast('❌ Failed to broadcast announcement: ' + err.message);
+    } finally {
+      setIsPublishingAnn(false);
+    }
+  };
+
+  const activeClass = classes.find((c) => c.id === selectedClassId) || classes[0];
 
   return (
     <div className="teacher-dashboard">
@@ -187,20 +226,50 @@ export default function TeacherDashboard() {
       {/* TAB 1: OVERVIEW & CLASS ANALYTICS */}
       {activeTab === 'overview' && (
         <div className="tab-pane">
-          <div className="class-selector-row mb-4">
-            <label className="form-label" htmlFor="class-select">Select Active Class:</label>
-            <select
-              id="class-select"
-              className="form-select form-select-inline"
-              value={selectedClassId}
-              onChange={(e) => setSelectedClassId(e.target.value)}
+          <div className="class-selector-row mb-4" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+              <label className="form-label mb-0" htmlFor="class-select" style={{ fontWeight: '600' }}>Active Class:</label>
+              <select
+                id="class-select"
+                className="form-select form-select-inline"
+                value={selectedClassId}
+                onChange={(e) => setSelectedClassId(e.target.value)}
+              >
+                {classes.map((cls) => (
+                  <option key={cls.id} value={cls.id}>
+                    {cls.name} ({cls.section})
+                  </option>
+                ))}
+              </select>
+
+              {activeClass?.joinCode && (
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(168, 85, 247, 0.15)', border: '1px solid rgba(168, 85, 247, 0.3)', padding: '4px 12px', borderRadius: '10px' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#c084fc', fontWeight: '600' }}>Invite Code:</span>
+                  <strong style={{ fontSize: '0.95rem', color: '#fff', fontFamily: 'monospace', letterSpacing: '0.08em' }}>{activeClass.joinCode}</strong>
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    style={{ padding: '2px 8px', fontSize: '0.75rem', minHeight: 'auto', height: '24px' }}
+                    onClick={() => {
+                      navigator.clipboard.writeText(activeClass.joinCode);
+                      showToast(`📋 Copied class code "${activeClass.joinCode}" to clipboard!`);
+                    }}
+                    title="Copy invite code for students"
+                  >
+                    📋 Copy
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button
+              type="button"
+              className="btn btn-sm btn-primary"
+              onClick={() => setShowAnnouncementModal(true)}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
             >
-              {classes.map((cls) => (
-                <option key={cls.id} value={cls.id}>
-                  {cls.name} ({cls.section})
-                </option>
-              ))}
-            </select>
+              <span>📢</span> Broadcast Announcement
+            </button>
           </div>
 
           {/* Stats Bar */}
@@ -424,6 +493,72 @@ export default function TeacherDashboard() {
       {showDeckBuilder && (
         <Modal title="Create Flashcard Deck" onClose={() => setShowDeckBuilder(false)}>
           <FlashcardDeckBuilder onSaveDeck={handleSaveDeck} onCancel={() => setShowDeckBuilder(false)} />
+        </Modal>
+      )}
+
+      {/* Broadcast Announcement Modal */}
+      {showAnnouncementModal && (
+        <Modal title="📢 Broadcast Class Announcement" onClose={() => setShowAnnouncementModal(false)}>
+          <form onSubmit={handlePublishAnnouncement} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <p className="text-muted" style={{ fontSize: '0.88rem', margin: 0 }}>
+              This message will immediately appear as a live alert on all enrolled students' dashboards.
+            </p>
+
+            <div>
+              <label className="form-label" style={{ fontWeight: '600' }}>Announcement Title</label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="e.g. Midterm Exam Preparation & Schedule"
+                value={annTitle}
+                onChange={(e) => setAnnTitle(e.target.value)}
+                required
+              />
+            </div>
+
+            <div>
+              <label className="form-label" style={{ fontWeight: '600' }}>Priority Level</label>
+              <select
+                className="form-select"
+                value={annPriority}
+                onChange={(e) => setAnnPriority(e.target.value)}
+              >
+                <option value="normal">Normal Announcement (📢 Update)</option>
+                <option value="important">Important (📌 Exam / Due Date)</option>
+                <option value="urgent">Urgent (🚨 Immediate Action)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="form-label" style={{ fontWeight: '600' }}>Message Content</label>
+              <textarea
+                className="form-textarea"
+                rows={4}
+                placeholder="Write the detailed message for your students..."
+                value={annMessage}
+                onChange={(e) => setAnnMessage(e.target.value)}
+                required
+              />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '8px' }}>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => setShowAnnouncementModal(false)}
+                disabled={isPublishingAnn}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={isPublishingAnn || !annTitle.trim() || !annMessage.trim()}
+              >
+                {isPublishingAnn ? 'Broadcasting…' : '📢 Broadcast to Students'}
+              </button>
+            </div>
+          </form>
         </Modal>
       )}
     </div>

@@ -28,13 +28,19 @@ export default function LoginPage() {
     setError(null);
 
     try {
+      let loggedUser;
       if (tab === 'login') {
-        await authService.login(email, password);
+        loggedUser = await authService.login(email, password);
       } else {
         if (!name) { setError('Please enter your name.'); setIsLoading(false); return; }
-        await authService.signup(email, password, name, role);
+        loggedUser = await authService.signup(email, password, name, role);
       }
-      navigate('/');
+      
+      if (loggedUser?.role === 'teacher') {
+        navigate('/teacher');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       setError(err.message || (tab === 'login' ? 'Login failed.' : 'Sign-up failed.'));
     } finally {

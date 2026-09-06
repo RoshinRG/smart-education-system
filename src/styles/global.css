@@ -1156,5 +1156,127 @@ select option { background: #1a1f2e; }
   background: rgba(99,102,241,0.25); border-color: var(--primary); color: #fff; font-weight: 700;
 }
 
+/* ── Quick Prompt Starters Chips ─────────────────────────────────────── */
+.quick-prompts-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.quick-prompts-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.quick-prompts-chips {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: nowrap;
+}
+
+.quick-prompt-chip {
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  color: #c7d2fe;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.quick-prompt-chip:hover {
+  background: rgba(99, 102, 241, 0.25);
+  border-color: #818cf8;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* ── Formatted Code Blocks in Tutor Messages ─────────────────────────── */
+.formatted-message-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.code-block-wrapper {
+  margin: 0.5rem 0;
+  background: #0d1117;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.code-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.code-block-lang {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #38bdf8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn-copy-code {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-copy-code:hover {
+  background: rgba(99, 102, 241, 0.25);
+  border-color: #818cf8;
+  color: #fff;
+}
+
+.code-block-pre {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  font-family: 'Fira Code', 'Cascadia Code', Consolas, Monaco, monospace;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #e2e8f0;
+}
+
+/* ── Card and Glassmorphism Polish ───────────────────────────────────── */
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+.badge-teacher {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
 
 

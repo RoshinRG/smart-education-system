@@ -619,9 +619,9 @@ class APIClient {
     this.requestInterceptors = [];
     this.responseInterceptors = [];
 
-    // Instant local mock mode by default for standalone frontend, preventing ERR_CONNECTION_REFUSED console errors
+    // Auto-detect real backend on first request
     this.isBackendAvailable = false;
-    this.hasTestedBackend = true;
+    this.hasTestedBackend = false;
   }
 
   enableRealBackend() {

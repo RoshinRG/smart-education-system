@@ -4,6 +4,73 @@ import Modal from '../common/Modal.jsx';
 import CodeSandboxModal from './CodeSandboxModal.jsx';
 import WebReferencesDrawer from './WebReferencesDrawer.jsx';
 
+const QUICK_PROMPTS = [
+  { label: '💡 Explain with Analogy', prompt: 'Can you explain this concept using a simple, real-world analogy?' },
+  { label: '💻 Code Example', prompt: 'Can you write a clear code example to demonstrate how this works?' },
+  { label: '❓ Practice Question', prompt: 'Give me a quiz question to test if I understand this topic correctly.' },
+  { label: '📝 Key Takeaways', prompt: 'Can you summarize the top 3 essential takeaways from this topic?' },
+];
+
+// Helper to render markdown-like content with interactive code blocks
+function FormattedContent({ text, onCopyCode, copiedCodeId, msgId }) {
+  if (!text) return null;
+
+  const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = codeBlockRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push({ type: 'text', content: text.slice(lastIndex, match.index) });
+    }
+    parts.push({
+      type: 'code',
+      lang: match[1] || 'code',
+      content: match[2].trim(),
+    });
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push({ type: 'text', content: text.slice(lastIndex) });
+  }
+
+  return (
+    <div className="formatted-message-content">
+      {parts.map((part, i) => {
+        if (part.type === 'code') {
+          const blockId = `${msgId}-code-${i}`;
+          const isCopied = copiedCodeId === blockId;
+          return (
+            <div key={i} className="code-block-wrapper">
+              <div className="code-block-header">
+                <span className="code-block-lang">{part.lang}</span>
+                <button
+                  type="button"
+                  className="btn-copy-code"
+                  onClick={() => onCopyCode(part.content, blockId)}
+                  title="Copy code snippet"
+                >
+                  {isCopied ? '✅ Copied!' : '📋 Copy'}
+                </button>
+              </div>
+              <pre className="code-block-pre">
+                <code>{part.content}</code>
+              </pre>
+            </div>
+          );
+        }
+        return (
+          <div key={i} className="text-segment" style={{ whiteSpace: 'pre-line' }}>
+            {part.content}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function ChatWindow({ chatId, gradeLevel, subject }) {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -15,6 +82,7 @@ export default function ChatWindow({ chatId, gradeLevel, subject }) {
   const [showReferencesModal, setShowReferencesModal] = useState(false);
   const [liveWebSearch, setLiveWebSearch] = useState(true);
   const [openReferencesMap, setOpenReferencesMap] = useState({});
+  const [copiedCodeId, setCopiedCodeId] = useState(null);
 
   const bottomRef = useRef(null);
   const recognitionRef = useRef(null);
@@ -39,23 +107,33 @@ export default function ChatWindow({ chatId, gradeLevel, subject }) {
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
+  const handleQuickPrompt = (promptText) => {
+    setInputValue(promptText);
+  };
+
+  const handleCopyCode = (codeText, id) => {
+    navigator.clipboard.writeText(codeText);
+    setCopiedCodeId(id);
+    setTimeout(() => setCopiedCodeId(null), 2000);
+  };
+
+  const handleSendMessage = async (overrideText) => {
+    const textToSend = overrideText || inputValue;
+    if (!textToSend.trim()) return;
 
     const userMsg = {
       id: Date.now(),
       role: 'user',
-      content: inputValue,
+      content: textToSend,
       timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMsg]);
-    const sentText = inputValue;
     setInputValue('');
     setIsLoading(true);
 
     try {
-      const response = await tutorService.sendMessage(chatId, sentText, liveWebSearch);
+      const response = await tutorService.sendMessage(chatId, textToSend, liveWebSearch);
       const incomingMsg = response.message || response;
       setMessages((prev) => [...prev, incomingMsg]);
       
@@ -228,7 +306,14 @@ export default function ChatWindow({ chatId, gradeLevel, subject }) {
                   {isAI ? '🤖' : '👤'}
                 </div>
                 <div className="message-bubble">
-                  <div className="message-content" style={{ whiteSpace: 'pre-line' }}>{text}</div>
+                  <div className="message-content">
+                    <FormattedContent
+                      text={text}
+                      onCopyCode={handleCopyCode}
+                      copiedCodeId={copiedCodeId}
+                      msgId={msg.id}
+                    />
+                  </div>
 
                   {/* Web References Drawer / Cards attached to AI responses */}
                   {hasRefs && (
@@ -299,6 +384,24 @@ export default function ChatWindow({ chatId, gradeLevel, subject }) {
 
       {/* Input area with Voice Dictation and Web Search Indicator */}
       <div className="chat-input-wrapper">
+        {/* Quick Prompt Starter Chips */}
+        <div className="quick-prompts-bar">
+          <span className="quick-prompts-label">⚡ Prompt Starters:</span>
+          <div className="quick-prompts-chips">
+            {QUICK_PROMPTS.map((qp, idx) => (
+              <button
+                key={idx}
+                type="button"
+                className="quick-prompt-chip"
+                onClick={() => handleQuickPrompt(qp.prompt)}
+                title="Click to fill input"
+              >
+                {qp.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="chat-input-toolbar">
           <button
             type="button"
